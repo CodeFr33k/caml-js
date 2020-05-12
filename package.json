@@ -1,0 +1,17 @@
+{
+  "name": "caml-js",
+  "version": "1.0.0",
+  "description": "Caml Javascript Library",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeFr33k/caml-js.git"
+  },
+  "author": "CodeFr33k",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CodeFr33k/caml-js/issues"
+  },
+  "homepage": "https://github.com/CodeFr33k/caml-js#readme"
+}
