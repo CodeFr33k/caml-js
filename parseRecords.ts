@@ -1,62 +1,87 @@
 import Record from './Record';
+import Part from './Part';
 import * as util from './util';
 
-export default function  parseRecords(lines: string[]) {
-    const result = lines.reduce((result: any, line: string) => {
-       if(!result.record && line){
-            result.record = new Record();
-            result.records.push(result.record);
+export function parseAnnotation(line: string) {
+    const match = util.matchKeyValue(line);
+    if(match) {
+        return {
+            key: match.key,
+            value: match.value,
+        };
+    }
+    const tag = util.matchTag(line);
+    if(tag) {
+        return tag
+    }
+    /*if(match.key === 'img') {
+        const uris = util.matchUris(match.value);
+        if(uris.length > 0) {
+            // NOTE: only supports one image uri currently
+            // per key-value
+            result.record.images.push(uris[0]);
         }
-        if(result.record) {
-            result.record.lines.push(line);
+    }*/
+    return '';
+}
+
+export function parsePart(lines: string[], start: number): Part {
+    let isReadingData = false;
+    const part = new Part;
+    for(let i = start; i < lines.length; i++) {
+        const line = lines[i];
+        if(!line && !isReadingData) {
+            break;
+        }
+        part.lines.push(line);
+        if(!line && isReadingData) {
+            continue;
         }
         const match = line.match(/\(`(.+)\)/);
-        let tmp = line;
         if(match) {
-            result.isReadingData = true;
-            tmp = match[1];
+            const annotation = parseAnnotation(match[1]);
+            part.annotations.push(annotation);
+            break;
         }
         else if(line.startsWith('(`')) {
-            result.isReadingData = true;
-            return result;
+            isReadingData = true;
+            continue;
         }
         else if(line.startsWith(')')) {
-            result.isReadingData = false;
-            return result;
+            isReadingData = false;
+            continue; 
         }
-        if(result.isReadingData) {
-            const match = util.matchKeyValue(tmp);
-            const tag = util.matchTag(tmp);
-            if(match) {
-                result.record.annotations.push({
-                    key: match.key,
-                    value: match.value,
-                });
-                if(match.key === 'img') {
-                    const uris = util.matchUris(match.value);
-                    if(uris.length > 0) {
-                        // NOTE: only supports one image uri currently
-                        // per key-value
-                        result.record.images.push(uris[0]);
-                    }
-                }
-            } else if(tag) {
-                result.record.annotations.push(tag);
+        if(isReadingData) {
+            const annotation = parseAnnotation(line);
+            if(annotation) {
+                part.annotations.push(annotation);
             }
         }
-        if(match) {
-            result.isReadingData = false;
+    }
+    return part;
+}
+
+export default function  parseRecords(lines: string[]) {
+    const records: Record[] = [];
+    let record = null;
+    for(let i = 0; i < lines.length;) {
+        const line = lines[i];
+        if(!record && line) {
+            record = new Record;
+            records.push(record);
         }
-        if(!line && !result.isReadingData) {
-            result.record = undefined;
-            result.isReadingDate = false;
+        if(!record && !line) {
+            i += 1;
+            continue;
         }
-        return result;
-    }, {
-        records: [],
-        record: undefined,
-        isReadingData: false,
-    });
-    return result.records.reverse();
+        if(!line) {
+            record = null;
+            continue;
+        }
+        const part = parsePart(lines, i);
+        record!.parts.push(part);
+        i += part.lines.length;
+    }
+    return records.reverse();
 }
 

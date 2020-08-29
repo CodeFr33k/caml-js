@@ -9,7 +9,7 @@ function create() {
     const customFunctions: any = {
        load(lines: any) {
            const newRecords = parseRecords(lines);
-           records.replace(records.concat(newRecords));    
+           records.replace(records.concat(newRecords as any));    
         },
     };
     return new Proxy(records, {
