@@ -3,7 +3,7 @@ import Part from './Part';
 class Record {
     parts: Part[] = []
     images: string[] = []
-    userData: string[] = []
+    userData: any[] = []
 
     get lines() {
         const result = [];

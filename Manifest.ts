@@ -1,7 +1,7 @@
 import * as Uri from './Uri';
 
 export default class Manifest {
-    text: string = '';
+    text = '';
 
     constructor(text: string) {
         this.text = text;
