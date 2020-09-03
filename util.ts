@@ -1,3 +1,13 @@
+export function download(text: string, filename: string) {
+    const blob = new Blob([text], {type: 'text/plain'});
+    const uri = URL.createObjectURL(blob);
+    const link = document.createElement('a') as HTMLAnchorElement;
+    link.href = uri;
+    link.download = filename;
+    const event = new MouseEvent('click');
+    link.dispatchEvent(event);
+}
+
 export async function readTextFromFile(file: any): Promise<string> {
     return new Promise((resolve) => {
         const reader = new FileReader();
