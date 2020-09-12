@@ -1,9 +1,11 @@
 import Part from './Part';
 
 class Record {
+    id: string = ''
     parts: Part[] = []
     images: string[] = []
     userData: any[] = []
+    clickCount: number = 0;
 
     get lines() {
         const result = [];
@@ -14,6 +16,10 @@ class Record {
         }
         result.push('');
         return result;
+    }
+
+    click() {
+        this.clickCount += 1;
     }
 }
 

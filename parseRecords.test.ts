@@ -3,14 +3,27 @@ import parseRecords, {
     parsePart,  
     parseAnnotation,
 } from './parseRecords';
+import Record from 'caml-js/Record';
+import 'caml-js/shims';
+
+const record = new Record;
 
 it('parse part', () => {
     const lines: string[] = [
         'abc',
         '',
     ];
-    const part = parsePart(lines, 0);
+    const part = parsePart(record, lines, 0);
     expect(part.lines).toHaveLength(1);
+});
+
+it('generate id', () => {
+    const lines: string[] = [
+        'abc',
+        '',
+    ];
+    const records = parseRecords(lines);
+    expect(records[0].id).not.toBe('');
 });
 
 it('parse one part then exit', () => {
@@ -19,12 +32,12 @@ it('parse one part then exit', () => {
         '',
         'abc',
     ];
-    const part = parsePart(lines, 0);
+    const part = parsePart(record, lines, 0);
     expect(part.lines).toHaveLength(1);
 });
 
 it('parse key value annotation', () => {
-    const annotation = parseAnnotation('abc = 123');
+    const annotation = parseAnnotation(record, 'abc = 123');
     expect(annotation).toEqual({
         key: 'abc',
         value: '123',        
@@ -55,7 +68,7 @@ it('parse key value on one line', () => {
      const lines: string[] = [
         '(`abc = 123)',
     ];
-    const part = parsePart(lines, 0);
+    const part = parsePart(record, lines, 0);
     expect(part.annotations).toContainEqual({
         key: 'abc',
         value: '123',        

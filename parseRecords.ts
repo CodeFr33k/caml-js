@@ -2,9 +2,20 @@ import Record from './Record';
 import Part from './Part';
 import * as util from './util';
 
-export function parseAnnotation(line: string) {
+export function parseAnnotation(record: Record, line: string) {
     const match = util.matchKeyValue(line);
     if(match) {
+        if(match.key === '@id') {
+            record.id = match.value;
+        }
+        if(match.key === 'img') {
+            const uris = util.matchUris(match.value);
+            if(uris.length > 0) {
+                // NOTE: only supports one image uri currently
+                // per key-value
+                record.images.push(uris[0]);
+            }
+        }
         return {
             key: match.key,
             value: match.value,
@@ -14,18 +25,10 @@ export function parseAnnotation(line: string) {
     if(tag) {
         return tag
     }
-    /*if(match.key === 'img') {
-        const uris = util.matchUris(match.value);
-        if(uris.length > 0) {
-            // NOTE: only supports one image uri currently
-            // per key-value
-            result.record.images.push(uris[0]);
-        }
-    }*/
     return '';
 }
 
-export function parsePart(lines: string[], start: number): Part {
+export function parsePart(record: Record, lines: string[], start: number): Part {
     let isReadingData = false;
     const part = new Part;
     for(let i = start; i < lines.length; i++) {
@@ -39,7 +42,7 @@ export function parsePart(lines: string[], start: number): Part {
         }
         const match = line.match(/\(`(.+)\)/);
         if(match) {
-            const annotation = parseAnnotation(match[1]);
+            const annotation = parseAnnotation(record, match[1]);
             part.annotations.push(annotation);
             break;
         }
@@ -52,7 +55,7 @@ export function parsePart(lines: string[], start: number): Part {
             continue; 
         }
         if(isReadingData) {
-            const annotation = parseAnnotation(line);
+            const annotation = parseAnnotation(record, line);
             if(annotation) {
                 part.annotations.push(annotation);
             }
@@ -75,10 +78,15 @@ export default function  parseRecords(lines: string[]) {
             continue;
         }
         if(!line) {
+            if(!record!.id) {
+                const lines = record!.lines;
+                const sample = lines[0] + lines[1];
+                record!.id = '' + sample.hashCode();
+            }
             record = null;
             continue;
         }
-        const part = parsePart(lines, i);
+        const part = parsePart(record!, lines, i);
         record!.parts.push(part);
         i += part.lines.length;
     }
