@@ -3,8 +3,8 @@ import parseRecords, {
     parsePart,  
     parseAnnotation,
 } from './parseRecords';
-import Record from 'caml-js/Record';
-import 'caml-js/shims';
+import Record from './Record';
+import './shims';
 
 const record = new Record;
 
