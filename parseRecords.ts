@@ -16,6 +16,14 @@ export function parseAnnotation(record: Record, line: string) {
                 record.images.push(uris[0]);
             }
         }
+        if(match.key === 'video') {
+            const uris = util.matchUris(match.value);
+            if(uris.length > 0) {
+                // NOTE: only supports one video uri currently
+                // per key-value
+                record.videos.push(uris[0]);
+            }
+        }
         return {
             key: match.key,
             value: match.value,

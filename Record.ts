@@ -4,6 +4,7 @@ class Record {
     id: string = ''
     parts: Part[] = []
     images: string[] = []
+    videos: string[] = []
     userData: any[] = []
     clickCount: number = 0;
 
